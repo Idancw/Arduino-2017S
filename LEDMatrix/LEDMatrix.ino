@@ -42,8 +42,8 @@ void setup()
 
 void loop()
 {
-  wander();
-  
+//  wander();
+//  return;
 //  // define pattern
 //  pattern1_data[0] = B00000101;
 //  pattern1_data[1] = B00000010;
@@ -57,16 +57,16 @@ void loop()
 //  pattern3_data[1] = B00000101;
 //  pattern3_data[2] = B00000101;
 //
-//  pattern4_data[0] = B00000010;
-//  pattern4_data[1] = B00000010;
-//  pattern4_data[2] = B00000010;
-//
-//  pattern5_data[0] = B00000010;
-//  pattern5_data[1] = B00000011;
-//  pattern5_data[2] = B00000100;
-//  
-//  
-//  int msCounter = 0;
+  pattern4_data[0] = B00000101;
+  pattern4_data[1] = B00000010;
+  pattern4_data[2] = B00000000;
+
+  pattern5_data[0] = B00000111;
+  pattern5_data[1] = B00000111;
+  pattern5_data[2] = B00000111;
+  
+  
+  int msCounter = 0;
 //
 //  while (msCounter < 100 ) {
 //    showPattern(pattern1_data);
@@ -95,25 +95,25 @@ void loop()
 //  }
 //
 //  msCounter = 0;
-//  allOff();
-//
-//  while (msCounter < 100 ) {
-//    
-//    showPattern(pattern4_data);
-//     delay(10);
-//    msCounter++;
-//  }
-//
-//  
-//  msCounter = 0;
-//  allOff();
-//
-//  while (msCounter < 100 ) {
-//    
-//    showPattern(pattern5_data);
-//     delay(10);
-//    msCounter++;
-//  }
+  allOff();
+
+  while (msCounter < 100 ) {
+    
+    showPattern(pattern4_data);
+     delay(10);
+    msCounter++;
+  }
+
+  
+  msCounter = 0;
+  allOff();
+
+  while (msCounter < 100 ) {
+    
+    showPattern(pattern5_data);
+     delay(10);
+    msCounter++;
+  }
   
   
 }
@@ -148,7 +148,7 @@ void showPattern(byte data[])
         digitalWrite(col[thiscol], HIGH);
       }
     }
-    delay(pause);
+    delay(pause*100);
   }
 }
 
