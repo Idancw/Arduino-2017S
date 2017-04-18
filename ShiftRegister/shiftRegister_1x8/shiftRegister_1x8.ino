@@ -11,7 +11,7 @@ const int MIN_DELAY = 50;
 const int MAX_DELAY = 500;
  
 // == GLOBAL DATA ==
-byte val = B1;
+byte val = B10;
 byte dir_forward = 1;
 
 void setup() 
@@ -39,7 +39,7 @@ void loop()
  
     // take the PIN_LATCH low so LEDs don't change while you're sending in bits
     digitalWrite(PIN_LATCH, LOW);
-    //digitalWrite(PIN_CLOCK, LOW);
+    digitalWrite(PIN_CLOCK, LOW);
 
     // send the bits
     shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, B10000001 + val); //val

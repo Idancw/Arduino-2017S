@@ -9,6 +9,11 @@ const byte PIN_DATA1 = 6;
 const byte PIN_DATA2 = 7;
 const byte PIN_DATA3 = 8;
 
+const byte PIN_MUX0 = 0;
+const byte PIN_MUX1 = 1;
+const byte PIN_MUX2 = 2;
+
+
 const byte DATAPINS[] = {PIN_DATA0, PIN_DATA1, PIN_DATA2, PIN_DATA3};
 
 // -- DELAY RANGE --
@@ -19,10 +24,10 @@ const int MAX_DELAY = 500;
 byte val = B10;
 byte dir_forward = 1;
 
-int board[4][4]= {{0,1,0,1},
-                  {0,1,1,1},
-                  {0,1,0,0},
-                  {1,0,1,0}};
+int board[4][4]= {{1,1,1,1},
+                  {1,1,1,1},
+                  {1,1,1,1},
+                  {1,1,1,1}};
 
 void setup() 
 {
@@ -33,19 +38,28 @@ void setup()
   pinMode(PIN_DATA1, OUTPUT);
   pinMode(PIN_DATA2, OUTPUT);
   pinMode(PIN_DATA3, OUTPUT);
+
+  
+  pinMode(PIN_MUX0, OUTPUT);
+  pinMode(PIN_MUX1, OUTPUT);
+  pinMode(PIN_MUX2, OUTPUT);
  
   // the LEDs don't change while you're sending in bits
   digitalWrite(PIN_LATCH, LOW);
   // shift out the bits
   shiftOut(PIN_DATA0, PIN_CLOCK, MSBFIRST, B0000);
+  shiftOut(PIN_DATA1, PIN_CLOCK, MSBFIRST, B0000);
   shiftOut(PIN_DATA2, PIN_CLOCK, MSBFIRST, B0000);
   shiftOut(PIN_DATA3, PIN_CLOCK, MSBFIRST, B0000);
-  shiftOut(PIN_DATA1, PIN_CLOCK, MSBFIRST, B0000);
   //take the latch pin high so the LEDs will light up
   digitalWrite(PIN_LATCH, HIGH);
+
+  digitalWrite(PIN_MUX0, HIGH);
+  digitalWrite(PIN_MUX1, LOW);
+  digitalWrite(PIN_MUX2, LOW);
 }
 
-void loop() 
+void loop()
 {
   // -- read the value from the potentiometer and convert it to delay time -- 
   
@@ -53,7 +67,11 @@ void loop()
   //int delay_time = map(pot_val, 0, 1023, MIN_DELAY, MAX_DELAY);   
   int delay_time = 250;
 
-  printBoard();
+
+//  printBoard();
+  
+  wander();
+
 
 //  delay(delay_time);
 
@@ -64,9 +82,6 @@ void loop()
 
   // send the bits
   shiftOut(PIN_DATA0, PIN_CLOCK, MSBFIRST, val); //val
-  shiftOut(PIN_DATA3, PIN_CLOCK, MSBFIRST, val); //val
-  shiftOut(PIN_DATA2, PIN_CLOCK, MSBFIRST, val); //val
-  shiftOut(PIN_DATA1, PIN_CLOCK, MSBFIRST, val); //val
 
   // -- set next LED on --
   if (dir_forward)
@@ -110,8 +125,6 @@ void printBoard()
     digitalWrite(PIN_LATCH, HIGH);
     delay(3);
   }
-  
-
 }
 
 int rowToInt(int row)
@@ -125,6 +138,68 @@ int rowToInt(int row)
   return val;
 }
 
+void printBall(int i, int j, int k)
+{
+  digitalWrite(PIN_LATCH, LOW);
+  if (k == 0)
+    shiftOut(DATAPINS[i], PIN_CLOCK, MSBFIRST, jToVal(j)); //2^(j+1)
+  else
+    shiftOut(DATAPINS[i+2], PIN_CLOCK, MSBFIRST, jToVal(j)); //2^(j+1)
+  
+  digitalWrite(PIN_LATCH, HIGH);  
+}
+
+int jToVal(int j)
+{
+  int r = 0.5 + pow(2,j);
+  r <<=1;
+  return r;
+  // TODO: Use pow() - return 2**(j+1);
+  if (j == 0) return 2;
+  if (j == 1) return 4;
+  if (j == 2) return 8;
+  if (j == 3) return 16;
+  else return B0110;
+}
+
+void wander()
+{
+  for (int a = 0; a<2; a++)
+    for (int b = 0; b<4; b++)
+      for (int c = 0; c<2; c++)
+      {
+        printBall(a,b,c);
+        delay(500);
+      }
+  return;
+
+  int i=1, j=1, k=1;
+  while (true)
+  {
+
+    printBall(i,j,k);
+    delay(300);
+
+    int ni=i, nj=j, nk=k;
+    while ((ni==i && nj==j && nk==k))
+    {
+      ni += random(-1,2);
+      if (ni<0) ni=0;
+      if (ni>1) ni=1;
+  
+      nj += random(-1,2);
+      if (nj<0) nj=0;
+      if (nj>3) nj=3;
+      
+      nk += random(-1,2);
+      if (nk<0) nk=0;
+      if (nk>1) nk=1;
+    }
+    i=ni;
+    j=nj;
+    k=nk;
+  }
+}
 
 
 
