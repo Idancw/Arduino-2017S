@@ -11,7 +11,7 @@ const int MIN_DELAY = 50;
 const int MAX_DELAY = 500;
  
 // == GLOBAL DATA ==
-byte val = 1;
+byte val = B1;
 byte dir_forward = 1;
 
 void setup() 
@@ -35,22 +35,24 @@ void loop()
     
     //int pot_val = analogRead(A5);
     //int delay_time = map(pot_val, 0, 1023, MIN_DELAY, MAX_DELAY);   
-    int delay_time = 500; 
+    int delay_time = 50;
  
     // take the PIN_LATCH low so LEDs don't change while you're sending in bits
     digitalWrite(PIN_LATCH, LOW);
- 
+    //digitalWrite(PIN_CLOCK, LOW);
+
     // send the bits
-    shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, val);
+    shiftOut(PIN_DATA, PIN_CLOCK, MSBFIRST, B10000001 + val); //val
 
     // -- set next LED on --
-    if(dir_forward)
+    if (dir_forward)
     {
       // val = val * 2 OR move 1 bit left
       val <<= 1;
  
       // 128 is 1000000, reached last LED -> revert the sequence
-      if(128 == val)
+      // this jumps back and forth and always leaves the edge bits lit
+      if(B01000000 == val)
         dir_forward = 0;
     }
     else
@@ -59,7 +61,7 @@ void loop()
       val >>= 1;
  
       // back to the first LED -> revert the sequence
-      if(1 == val)
+      if(B00000010 == val)
         dir_forward = 1;
     }
  
