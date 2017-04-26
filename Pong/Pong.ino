@@ -11,6 +11,11 @@ Paddle p2 = Paddle();
 Paddle p3 = Paddle();
 Paddle p4 = Paddle();
 
+// Settings:
+bool speedUpBall = true;
+bool shrinkPaddles = true;
+
+
 void setup()
 {
   randomSeed(analogRead(A0)); // uses seed from reading Voltage from unused pin.
@@ -31,7 +36,13 @@ void loop()
 
     // Every second, increase speed by 1%
     if (t % 1000 == 0)
+    {
       ball.speedUp(1.01);
+      p1.shrink(0.99);
+      p2.shrink(0.99);
+      p3.shrink(0.99);
+      p4.shrink(0.99);
+    } 
     
   }
   else if (gamestatus > 0)
@@ -63,7 +74,7 @@ void flashLosingEdge(int player, int t)
   if (t % 500 == 0)
   {
     Serial.println("Player " + String(player) + " has lost");
-    // TODO: Invert edge's pattern
+    // TODO: Invert lights on edge to flash pattern
   }
 }
 

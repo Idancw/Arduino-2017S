@@ -20,7 +20,12 @@
  * 2) based on how fast the paddle is moving.
  * 
  * 
+ * GAMEPLAY:
  * 
+ * As time moves on:
+ * - Ball moves faster
+ * - Paddles get smaller (as long as ball is far enough away from you)
+ * - Add another ball?
  * 
  * 
  * 

@@ -7,12 +7,12 @@ class Paddle
 {
   private:
     double x, xVel, xAcc, y, yVel, yAcc;
-    int L, w, h;
+    int pLen, pWid, bLen, bWid;
     bool activated;
    
   public:
     Paddle();
-    Paddle(int L, int w, int h);
+    Paddle(int pLen, int pWid, int bLen, int bWid);
     double getX();
     double getY();
     void movingL();
@@ -26,6 +26,8 @@ class Paddle
     bool isActive();
     void reset();
     void go();
+    void shrink(double factor);
+    bool isBlocking(int a, int b);
     // TODO: Maybe some draw function that cares about the radius of the ball and returns the range of coords
 };
 

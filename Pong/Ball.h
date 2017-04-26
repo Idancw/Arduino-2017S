@@ -20,10 +20,10 @@ class Ball
     int getZ();
     void reset();
     void go();
-    void speedUp(int factor);
+    void speedUp(double factor);
 //    void checkBounce();
     int checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4);
-    void rotateBy(int theta);
+    void rotateBy(double theta);
     // TODO: Maybe some draw function that cares about the radius of the ball and returns the range of coords
 };
 

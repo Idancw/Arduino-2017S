@@ -44,7 +44,7 @@ void Ball::go()
   this->z += this->zVel;
 }
 
-void Ball::speedUp(int factor) // factor should be greater than 1
+void Ball::speedUp(double factor) // factor should be greater than 1
 {
   this->xVel *= factor;
   this->yVel *= factor;
@@ -58,8 +58,16 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   if (this->z - this->r <= 0 || this->z + this->r >= h)
   	this->zVel *= -1;
 
+  // Check for paddle block or gameover
   if (p1.isActive() && this->x - this->r < 1)
-    return 1;
+    if (p1.isBlocking(this->y, this->z))
+    {
+      this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    }
+    else
+      return 1;
+  // ...for p2-p4
+
   
   // TODO: 0 if no paddle. use 1 when there is and it hits.
   if (this->x - this->r <= 0)	// Hits p1
@@ -68,14 +76,14 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   	this->xVel *= -1;
   if (this->y - this->r <= 0)	// Hits p3
   	this->yVel *= -1;
-  if (this->y + this->r >= L)	// Hits p4
+  if (this->y + this->r >= w)	// Hits p4
   	this->yVel *= -1;
 
   // TODO: If it hits a paddle, we'll need to rotate the vector by some amount.
   //rotateBy(CalculateRotationAngel);
 }
 
-void rotateBy(int theta)
+void rotateBy(double theta)
 {
 	// Rotate the ball's direction by theta degrees counterclockwise.
   //  - https://www.youtube.com/watch?v=DOMg0lXWatM
