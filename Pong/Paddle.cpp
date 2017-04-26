@@ -1,6 +1,18 @@
 #include "Arduino.h"
 #include "Paddle.h"
 
+Paddle::Paddle()
+{
+  this->L = 0;
+  this->w = 0;
+  this->h = 0;
+  this->xAcc = 0;
+  this->yAcc = 0;
+  this->zAcc = 0;
+
+  this->activated = false;
+}
+
 Paddle::Paddle(int L, int w, int h)
 {
   this->L = L;
@@ -9,11 +21,17 @@ Paddle::Paddle(int L, int w, int h)
   this->xAcc = 0;
   this->yAcc = 0;
   this->zAcc = 0;
+
+  this->activated = true;
 }
 
 int Paddle::getX() { return (int)this->x; }
 int Paddle::getY() { return (int)this->y; }
 int Paddle::getZ() { return (int)this->z; }
+
+void Paddle::setActive(bool activated) { this->activated = activated; }
+bool Paddle::isActive() { return this->activated; }
+
 
 void Paddle::reset()
 {
