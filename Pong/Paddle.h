@@ -6,16 +6,19 @@
 class Paddle
 {
   private:
-    double x, xAcc, y, yAcc, z, zAcc;
+    double x, xVel, xAcc, y, yVel, yAcc;
     int L, w, h;
     bool activated;
    
   public:
     Paddle();
     Paddle(int L, int w, int h);
-    int getX();
-    int getY();
-    int getZ();
+    double getX();
+    double getY();
+    void movingL();
+    void movingR();
+    void movingU();
+    void movingD();
     // int getL();
     // int getW();
     // int getH();
