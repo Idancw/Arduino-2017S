@@ -1,9 +1,13 @@
 #include "Arduino.h"
 #include "Ball.h"
 
-int STEPS_PER_LED = 5;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
 
-Ball::Ball(int r, int L, int w, int h)
+// == GAME CONSTANTS ==
+int STEPS_PER_LED = 30;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
+double MAXF = 20;
+
+
+Ball::Ball(double r, int L, int w, int h)
 {
   this->spl = STEPS_PER_LED;
   this->L = L;
@@ -13,28 +17,40 @@ Ball::Ball(int r, int L, int w, int h)
   reset();
 }
 
-void Ball::setRadius(int r) { this->r = r; }
+float Ball::getR() { return this->r; }
+float Ball::getX() { return this->x; }
+float Ball::getY() { return this->y; }
+float Ball::getZ() { return this->z; }
 
-int Ball::getX() { return (int)this->x; }
-int Ball::getY() { return (int)this->y; }
-int Ball::getZ() { return (int)this->z; }
+String Ball::getStr()
+{
+  return ("(" + String(this->x) + "," + this->y + "," + this->z + ")\t" +
+          "(" + this->xVel + "," + this->yVel + "," + this->zVel + ")");
+}
+
+
+void Ball::setRadius(double r) { this->r = r; }
 
 void Ball::reset()
 {
- this->x = this->L/2;
- this->y = this->w/2;
- this->z = this->h/2;
- 
- // Give it a random direction
- this->xVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
- this->yVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
- this->zVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->x = (this->L-1)/2.0;
+  this->y = (this->w-1)/2.0;
+  this->z = (this->h-1)/2.0;
 
- // Normalize
- double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
- this->xVel /= magnitude * spl;
- this->yVel /= magnitude * spl;
- this->zVel /= magnitude * spl;
+  // Use seed from reading Voltage from unused pin.
+  randomSeed(analogRead(0));
+  // Give it a random direction
+  this->xVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->yVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->zVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  
+  // Normalize
+  double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
+  this->xVel /= magnitude * spl;
+  this->yVel /= magnitude * spl;
+  this->zVel /= magnitude * spl;
+
+  this->f = 1;
 }
 
 void Ball::go()
@@ -46,6 +62,10 @@ void Ball::go()
 
 void Ball::speedUp(double factor) // factor should be greater than 1
 {
+  if (this->f > MAXF)
+    return;
+  
+  this->f *= factor; 
   this->xVel *= factor;
   this->yVel *= factor;
   this->zVel *= factor;
@@ -72,13 +92,14 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   // TODO: 0 if no paddle. use 1 when there is and it hits.
   if (this->x - this->r <= 0)	// Hits p1
   	this->xVel *= -1;
-  if (this->x + this->r >= L)	// Hits p2
+  if (this->x + this->r >= L-1)	// Hits p2
   	this->xVel *= -1;
   if (this->y - this->r <= 0)	// Hits p3
   	this->yVel *= -1;
-  if (this->y + this->r >= w)	// Hits p4
+  if (this->y + this->r >= w-1)	// Hits p4
   	this->yVel *= -1;
 
+  return 0;
   // TODO: If it hits a paddle, we'll need to rotate the vector by some amount.
   //rotateBy(CalculateRotationAngel);
 }

@@ -54,26 +54,21 @@ void Paddle::go()
   else
     this->yVel *= FRICTION;
 
-  if (this->xVel > 1)
-    this->xVel = 1;
-  if (this->yVel > 1)
-    this->yVel = 1;
-  if (this->xVel < -1)
-    this->xVel = -1;
-  if (this->yVel < -1)
-    this->yVel = -1;
-  
+  // Keep velocities within [-1,1];
+  this->xVel = max(this->xVel,-1);
+  this->xVel = min(this->xVel,1);
+  this->yVel = max(this->yVel,-1);
+  this->yVel = min(this->yVel,1);
+
+  // Move board according to velocity.
   this->x += this->xVel;
   this->y += this->yVel;
 
-  if (this->x < 0)
-    this->x = 0;
-  if (this->x + this->pLen > this->bLen)
-    this->x = this->bLen - this->pLen;
-  if (this->y < 0)
-    this->y = 0;
-  if (this->y + this->pWid > this->bWid)
-    this->y = this->bWid - this->pWid;
+  // Keep board within the field
+  this->x = max(this->x,0);
+  this->x = min(this->x, this->bLen - this->pLen);
+  this->y = max(this->y,0);
+  this->y = min(this->y, this->bWid - this->pWid);
 }
 
 void Paddle::movingL() { this->xAcc = -1; }
@@ -86,11 +81,11 @@ void Paddle::shrink(double factor)
   this->pLen *= factor;
   this->pWid *= factor;
 
-  // Don't make it too small
-  if (this->pLen < MIN_PLEN)
-    this->pLen = MIN_PLEN;
-  if (this->pWid < MIN_PWID)
-    this->pWid = MIN_PWID;  
+  // Don't let the paddle get too small
+  this->pLen = max(this->pLen,MIN_PLEN);
+  this->pWid = min(this->pWid,MIN_PWID);
+
+  // TODO: Consider recentering the paddle after it shrank.
 }
 
 bool Paddle::isBlocking(int a, int b)
