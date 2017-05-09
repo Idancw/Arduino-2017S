@@ -90,6 +90,7 @@ void Paddle::shrink(double factor)
 
 bool Paddle::isBlocking(int a, int b)
 {
+  // TODO: Round to nearest lightbulb?
   return ((a > this->x) && (a < this->x + this->pLen) &&
             (b > this->y) && (b < this->y + this->pWid));
 }
