@@ -17,10 +17,6 @@ class Ball
     Ball(double r, int L, int w, int h);
     void setRadius(double r);
     String getStr();
-    float getR();
-    float getX();
-    float getY();
-    float getZ();
     void reset();
     void go();
     void speedUp(double factor);

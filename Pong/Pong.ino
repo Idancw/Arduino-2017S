@@ -1,11 +1,15 @@
 #include "Ball.h"
 #include "Paddle.h"
 
+// DEBUGGING
+const int DEBUG = 0;
+const int USE_OLD_LIGHTING = 0;
+
+
 // == GAME CONSTANTS ==
 double SPEEDUP = 1.005;
 
 
-const int DEBUG = 0;
 byte PIN_CLOCKS[8] = {15,14,13,12,11,10,9,8};
 
 // pin connected to DS of 74HC595
@@ -84,7 +88,10 @@ void loop()
     flashLosingEdge(gamestatus, t);
   }
   t++;
-  delay(499*DEBUG+1);
+  delay(1);
+  
+  if (DEBUG)
+    delay(499);
 }
 
 
@@ -94,7 +101,7 @@ void drawBoard()
   for (int i=0; i<8; i++)
     for (int j=0; j<8; j++)
       for (int k=0; k<8; k++)
-        board[i][j][k] = 1;//(i+j+k)%2;
+        board[i][j][k] = 0;//(i+j+k)%2;
 
 //Debug Mode
 if (DEBUG)
@@ -110,27 +117,27 @@ if (DEBUG)
           board[i][j][k] = 1-(i+j+k)%2;
 
 
-//  float r = ball.getR();
   float r = ball.r;
-//  float x = ball.getX();
   float x = ball.x;
-//  float y = ball.getY();
   float y = ball.y;
-//  float z = ball.getZ();
   float z = ball.z;
 
   Serial.println("Ball's dim are:\t" + String(round(x-r)) + "-" + round(x+r) + "\t" +
                   round(y-r) + "-" + round(y+r) + "\t" +
                   round(z-r) + "-" + round(z+r));
 
-//// DEPRECATED
-//  if (!DEBUG)
-//  // Light pixels that are +-0.5 from any piece of the ball.
-//  for (int i=max(0,int(x-r+0.5)); i<=min(7,int(x+r+0.5)); i++)
-//    for (int j=max(0,int(y-r+0.5)); j<=min(7,int(y+r+0.5)); j++)
-//      for (int k=0; k<min(8,8); k++)
-//        board[i][j][k] = 1;
-
+// OLD LIGHTING METHOD
+  if (USE_OLD_LIGHTING)
+  {
+    // Light pixels that are +-0.5 from any piece of the ball.
+    for (int i=max(0,int(x-r+0.5)); i<=min(7,int(x+r+0.5)); i++)
+      for (int j=max(0,int(y-r+0.5)); j<=min(7,int(y+r+0.5)); j++)
+        for (int k=0; k<min(8,8); k++)
+          board[i][j][k] = 1;
+    showBoard();
+    return;
+  }
+  
   int points_i = 0;
   if (ball.xVel > ball.yVel && ball.xVel > ball.zVel)
     points_i = ball.x;

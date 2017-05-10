@@ -1,6 +1,8 @@
 #include "Arduino.h"
 #include "Paddle.h"
 
+
+// == GAME CONSTANTS ==
 double FRICTION = 0.9;
 double MIN_PLEN = 1;
 double MIN_PWID = 1;

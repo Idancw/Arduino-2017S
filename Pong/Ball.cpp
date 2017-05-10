@@ -4,7 +4,7 @@
 
 // == GAME CONSTANTS ==
 int STEPS_PER_LED = 50;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
-double MAXF = 8;
+double MAXF = 8;    // The max factor the ball can be sped up by from the original speed.
 
 
 Ball::Ball(double r, int L, int w, int h)
@@ -16,11 +16,6 @@ Ball::Ball(double r, int L, int w, int h)
   setRadius(r);
   reset();
 }
-
-float Ball::getR() { return this->r; }
-float Ball::getX() { return this->x; }
-float Ball::getY() { return this->y; }
-float Ball::getZ() { return this->z; }
 
 String Ball::getStr()
 {
@@ -47,11 +42,12 @@ void Ball::reset()
   // Normalize
 //  double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
   double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2));
-  this->xVel /= magnitude * spl;
-  this->yVel /= magnitude * spl;
+  this->xVel /= magnitude * this->spl;
+  this->yVel /= magnitude * this->spl;
 //  this->zVel /= magnitude * spl;
 
   this->f = 1;
+  bresenham_line_3d(magnitude*this->spl*this->x);
 }
 
 void Ball::go()
@@ -104,7 +100,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   if (this->x - this->r <= 0)	// Hits p1
   {
   	this->xVel *= -1;
-    bresenham_line_3d(8.0/this->xVel);
+    bresenham_line_3d((8.0-2*this->x)/this->xVel);
   }
   if (this->x + this->r >= L-1)	// Hits p2
   {
@@ -145,7 +141,7 @@ void rotateBy(double theta)
 void Ball::bresenham_line_3d(double mult)
 {
     double x0=this->x, y0=this->y, z0=this->z;
-    double x1=x0*mult, y1=y0*mult, z1=z0*mult;
+    double x1=x0+this->xVel*mult, y1=y0+this->yVel*mult, z1=z0+this->zVel*mult;
     double dx = abs(x1 - x0);
     double dy = abs(y1 - y0);
     double dz = abs(z1 - z0);
