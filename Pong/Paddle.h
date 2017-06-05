@@ -5,12 +5,12 @@
 
 class Paddle
 {
-  private:
+//  private:
+  public:
     double x, xVel, xAcc, y, yVel, yAcc;
     int pLen, pWid, bLen, bWid;
     bool activated;
    
-  public:
     Paddle();
     Paddle(int pLen, int pWid, int bLen, int bWid);
     double getX();

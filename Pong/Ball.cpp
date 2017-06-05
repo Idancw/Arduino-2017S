@@ -3,7 +3,7 @@
 
 
 // == GAME CONSTANTS ==
-int STEPS_PER_LED = 5;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
+int STEPS_PER_LED = 10;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
 double MAXF = 6;    // The max factor the ball can be sped up by from the original speed.
 
 
@@ -35,16 +35,16 @@ void Ball::reset()
   // Use seed from reading Voltage from unused pin.
   randomSeed(analogRead(0));
   // Give it a random direction
-  this->xVel = 0.01;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->xVel = 0.19;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
   this->yVel = 0.2;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
-  this->zVel = 0;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->zVel = 0.1;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
   
   // Normalize
 //  double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
   double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2));
-  this->xVel /= magnitude * this->spl;
-  this->yVel /= magnitude * this->spl;
-//  this->zVel /= magnitude * spl;
+  this->xVel /= magnitude * spl;
+  this->yVel /= magnitude * spl;
+  this->zVel /= magnitude * spl;
 
   this->f = 1;
   bresenham_line_3d(magnitude*this->spl*this->x);
@@ -68,7 +68,6 @@ void Ball::speedUp(double factor) // factor should be greater than 1
   this->zVel *= factor;
 }
 
-//void Ball::checkBounce()
 int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
 {
   double xv=this->xVel, yv=this->yVel, zv=this->zVel; 
@@ -88,7 +87,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   }
 
   // Check for paddle block or gameover
-  if (p1.isActive() && this->x - this->r < 1)
+  if (false && p1.isActive() && this->x - this->r < 1)
     if (p1.isBlocking(this->y, this->z))
     {
       this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
@@ -158,7 +157,7 @@ void Ball::bresenham_line_3d(double mult)
 
     if (dz > dx && dz > dy)   // Strongest going up/down (z)
     {
-      Serial.println("strongest going up/down " + String(dx) + " " + dy + " " + dz);
+//      Serial.println("strongest going up/down " + String(dx) + " " + dy + " " + dz);
         double err_x = dz / 2.0;
         double err_y = dz / 2.0;
         while (abs(z - z1) < 0.5)
@@ -229,8 +228,8 @@ void Ball::bresenham_line_3d(double mult)
           }
           y += sy;
       }
-      Serial.println("Strongest going back/front\t\t" + String(x0) + ", " + y0 + ", " + z0 +
-                     "\t\t" + String(x1) + ", " + y1 + ", " + z1);
+//      Serial.println("Strongest going back/front\t\t" + String(x0) + ", " + y0 + ", " + z0 +
+//                     "\t\t" + String(x1) + ", " + y1 + ", " + z1);
 //      delay(100);
 //      Serial.println("All done");
     }

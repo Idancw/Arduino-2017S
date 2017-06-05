@@ -3,12 +3,14 @@
 #include "Paddle.h"
 
 // DEBUGGING
-const int DEBUG = 1;    // 1 = flash every other light
+const int DEBUG = 0;    // 1 = flash every other light
 const int USE_OLD_LIGHTING = 1;   // 1 = simple, zig-zagging method
 const int LIGHT_ALL = 0;    // 1 = just light everything up all the time
 
 // == GAME CONSTANTS ==
 double SPEEDUP = 1.005;
+int players = 4;
+
 
 
 byte PIN_DATA_OUT[8] = {2,3,4,5,6,7,8,9};
@@ -20,19 +22,21 @@ int gamestatus = -1;  // 0 = playing
                       // [1,4] = that player has just lost.
                       // -1 = paused
 
-int L=8,W=8,H=8;
+int L=8,W=8,H=4;
+int pL=3,pW=2;
 Ball ball(0.5,L,W,H);
-Paddle p1 = Paddle();
-Paddle p2 = Paddle();
-Paddle p3 = Paddle();
-Paddle p4 = Paddle();
+Paddle p1 = Paddle(pL,pW,L,H);
+Paddle p2 = (players > 1)? Paddle(pL,pW,L,H) : Paddle();
+Paddle p3 = (players > 2)? Paddle(pL,pW,L,H) : Paddle();
+Paddle p4 = (players > 3)? Paddle(pL,pW,L,H) : Paddle();
+
 
 int board[8][8][8];
 
 
 // Settings:
 bool speedUpBall = false;
-bool shrinkPaddles = true;
+bool shrinkPaddles = false;
 
 void setup()
 {
@@ -107,6 +111,7 @@ void drawBoard()
       for (int k=0; k<8; k++)
         board[i][j][k] = 0;//(i+j+k)%2;
 
+  
 
 //Debug Mode
 if (DEBUG)
@@ -126,6 +131,27 @@ if (DEBUG)
   return;
 }
 
+  // Show paddles
+  if (p1.activated)
+    for (int i=max(0,int(p1.x+0.5)); i<min(8,int(p1.x+p1.pLen+0.5)); i++)
+      for (int j=max(0,int(p1.y+0.5)); j<min(8,int(p1.y+p1.pWid+0.5)); j++)
+          board[0][i][j] = 1;
+          
+  if (p2.activated)
+    for (int i=max(0,int(p2.x+0.5)); i<min(8,int(p2.x+p2.pLen+0.5)); i++)
+      for (int j=max(0,int(p2.y+0.5)); j<min(8,int(p2.y+p2.pWid+0.5)); j++)
+          board[7][7-i][j] = 1;
+          
+  if (p3.activated)
+    for (int i=max(0,int(p3.x+0.5)); i<min(8,int(p3.x+p3.pLen+0.5)); i++)
+      for (int j=max(0,int(p3.y+0.5)); j<min(8,int(p3.y+p3.pWid+0.5)); j++)
+          board[i][0][j] = 1;
+          
+  if (p4.activated)
+    for (int i=max(0,int(p4.x+0.5)); i<min(8,int(p4.x+p4.pLen+0.5)); i++)
+      for (int j=max(0,int(p4.y+0.5)); j<min(8,int(p4.y+p4.pWid+0.5)); j++)
+          board[7-i][7][j] = 1;
+
   float r = ball.r;
   float x = ball.x;
   float y = ball.y;
@@ -141,7 +167,7 @@ if (DEBUG)
     // Light pixels that are +-0.5 from any piece of the ball.
     for (int i=max(0,int(x-r+0.5)); i<=min(7,int(x+r+0.5)); i++)
       for (int j=max(0,int(y-r+0.5)); j<=min(7,int(y+r+0.5)); j++)
-        for (int k=0; k<min(8,8); k++)
+        for (int k=max(0,int(z-r+0.5)); k<=min(7,int(z+r+0.5)); k++)
           board[i][j][k] = 1;
     showBoard();
     return;
@@ -172,7 +198,7 @@ if (DEBUG)
 // Actually show board
 void showBoard()
 {
-  for (int k=0; k<2; k++)
+  for (int k=0; k<8; k++)
   {
     for (int i=0; i<8; i++)
     {
@@ -189,7 +215,7 @@ void showBoard()
       digitalWrite(PIN_CLOCKS[i], LOW);
     }
     digitalWrite(PIN_TRANSISTORS[k], HIGH);
-    delay(2);
+    delay(1);
     digitalWrite(PIN_TRANSISTORS[k], LOW);
   }
 }
