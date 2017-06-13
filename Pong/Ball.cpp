@@ -34,11 +34,16 @@ void Ball::reset()
 
   // Use seed from reading Voltage from unused pin.
   randomSeed(analogRead(0));
-  // Give it a random direction
-  this->xVel = 0.19;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
-  this->yVel = 0.2;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
-  this->zVel = 0.1;//((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
   
+  // Give it an initial direction
+//  this->xVel = -0.12;
+//  this->yVel = 0.11;
+//  this->zVel = 0.14;
+
+  this->xVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->yVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->zVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+
   // Normalize
 //  double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
   double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2));
@@ -86,15 +91,44 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
     bresenham_line_3d(-8.0/this->zVel);
   }
 
+
   // Check for paddle block or gameover
-  if (false && p1.isActive() && this->x - this->r < 1)
+  if (p1.isActive() && this->x - this->r < 1)
+  {
     if (p1.isBlocking(this->y, this->z))
     {
       this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
     }
     else
       return 1;
-  // ...for p2-p4
+  }
+  if (p2.isActive() && this->x + this->r > L)
+  {
+    if (p2.isBlocking(w-this->y, this->z))
+    {
+      this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    }
+    else
+      return 2;
+  }
+  if (p3.isActive() && this->y - this->r < 1)
+  {
+    if (p3.isBlocking(L-this->x, this->z))
+    {
+      this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    }
+    else
+      return 3;
+  }
+  if (p4.isActive() && this->y + this->r > w)
+  {
+    if (p4.isBlocking(this->x, this->z))
+    {
+      this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    }
+    else
+      return 4;
+  }
 
   
   // TODO: 0 if no paddle. use 1 when there is and it hits.
@@ -145,6 +179,7 @@ void rotateBy(double theta)
 
 void Ball::bresenham_line_3d(double mult)
 {
+  return;
     double x0=this->x, y0=this->y, z0=this->z;
     double x1=x0+this->xVel*mult, y1=y0+this->yVel*mult, z1=z0+this->zVel*mult;
     double dx = abs(x1 - x0);

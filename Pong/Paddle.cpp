@@ -29,6 +29,10 @@ double Paddle::getY() { return (int)this->y; }
 void Paddle::setActive(bool activated) { this->activated = activated; }
 bool Paddle::isActive() { return this->activated; }
 
+void Paddle::movingL() { this->xAcc = -1; }
+void Paddle::movingR() { this->xAcc = 1; }
+void Paddle::movingU() { this->yAcc = -1; }
+void Paddle::movingD() { this->yAcc = 1; }
 
 void Paddle::reset()
 {
@@ -41,7 +45,7 @@ void Paddle::reset()
 }
 
 void Paddle::go()
-{
+{ 
   if (xAcc > 0)
     this->xVel += 0.1;
   else if (xAcc < 0)
@@ -73,10 +77,6 @@ void Paddle::go()
   this->y = min(this->y, this->bWid - this->pWid);
 }
 
-void Paddle::movingL() { this->xAcc = -1; }
-void Paddle::movingR() { this->xAcc = 1; }
-void Paddle::movingU() { this->yAcc = -1; }
-void Paddle::movingD() { this->xAcc = 1; }
 
 void Paddle::shrink(double factor)
 {

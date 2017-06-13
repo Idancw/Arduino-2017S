@@ -23,12 +23,12 @@ int gamestatus = -1;  // 0 = playing
                       // -1 = paused
 
 int L=8,W=8,H=4;
-int pL=3,pW=2;
+int pL=1,pW=1;
 Ball ball(0.5,L,W,H);
-Paddle p1 = Paddle(pL,pW,L,H);
-Paddle p2 = (players > 1)? Paddle(pL,pW,L,H) : Paddle();
-Paddle p3 = (players > 2)? Paddle(pL,pW,L,H) : Paddle();
-Paddle p4 = (players > 3)? Paddle(pL,pW,L,H) : Paddle();
+Paddle p1 = Paddle(pL,pW,L,H);    // West
+Paddle p2 = (players > 1)? Paddle(pL,pW,L,H) : Paddle();    // East
+Paddle p3 = (players > 2)? Paddle(pL,pW,L,H) : Paddle();    // North
+Paddle p4 = (players > 3)? Paddle(pL,pW,L,H) : Paddle();    // South
 
 
 int board[8][8][8];
@@ -51,7 +51,6 @@ void setup()
 
   gamestatus = 0;
   ball.reset();
-  
 }
 
 
@@ -67,10 +66,22 @@ void loop()
 //    digitalWrite(PIN_CLOCKS[i], LOW);
 //    digitalWrite(PIN_CLOCKS[i], HIGH);  
 //  }
-  drawBoard();
   
   if (gamestatus == 0)
-  {    
+  {
+    drawBoard();
+    showBoard();
+//    // Testing paddle movement    
+//    if (t%400<100)
+//      p1.movingD();
+//    else if (t%400<200)
+//      p1.movingR();
+//    else if (t%400<395)
+//      p1.movingU();
+//    else
+//      p1.movingL();
+    
+    p1.go();
     ball.go();
     gamestatus = ball.checkBounce(p1, p2, p3, p4);
 
@@ -89,12 +100,15 @@ void loop()
       }
     }
   }
-  
   else if (gamestatus > 0)
   {
     t = 0;
+    drawBoard();
     flashLosingEdge(gamestatus, t);
+    showBoard();
   }
+//  Serial.println("Paddle p1's location is " + String(p1.x) + " " + String(p1.y));
+  delay(1);
   t++;
 //  delay(1);
   
@@ -113,23 +127,21 @@ void drawBoard()
 
   
 
-//Debug Mode
-if (DEBUG)
-{
-  if ((t%200)<100)
-    for (int i=0; i<8; i++)
-      for (int j=0; j<8; j++)
-        for (int k=0; k<8; k++)
-          board[i][j][k] = (i+j+k)%2;
-  else
-    for (int i=0; i<8; i++)
-      for (int j=0; j<8; j++)
-        for (int k=0; k<8; k++)
-          board[i][j][k] = 1-(i+j+k)%2;
-  
-  showBoard();
-  return;
-}
+  //Debug Mode
+  if (DEBUG)
+  {
+    if ((t%200)<100)
+      for (int i=0; i<8; i++)
+        for (int j=0; j<8; j++)
+          for (int k=0; k<8; k++)
+            board[i][j][k] = (i+j+k)%2;
+    else
+      for (int i=0; i<8; i++)
+        for (int j=0; j<8; j++)
+          for (int k=0; k<8; k++)
+            board[i][j][k] = 1-(i+j+k)%2;
+    return;
+  }
 
   // Show paddles
   if (p1.activated)
@@ -169,29 +181,25 @@ if (DEBUG)
       for (int j=max(0,int(y-r+0.5)); j<=min(7,int(y+r+0.5)); j++)
         for (int k=max(0,int(z-r+0.5)); k<=min(7,int(z+r+0.5)); k++)
           board[i][j][k] = 1;
-    showBoard();
-    return;
   }
-
-// SMOOTH METHOD
-  int points_i = 0;
-  if (ball.xVel > ball.yVel && ball.xVel > ball.zVel)
-    points_i = ball.x;
-  else if (ball.yVel > ball.zVel)
-    points_i = ball.y;
-  else 
-    points_i = ball.z;
-
-  int i = ball.points[points_i][0];
-  int j = ball.points[points_i][1];
-  int k = ball.points[points_i][2];
-  board[i][j][0] = 1;
+  else // SMOOTH METHOD
+  {
+    int points_i = 0;
+    if (ball.xVel > ball.yVel && ball.xVel > ball.zVel)
+      points_i = ball.x;
+    else if (ball.yVel > ball.zVel)
+      points_i = ball.y;
+    else 
+      points_i = ball.z;
   
+    int i = ball.points[points_i][0];
+    int j = ball.points[points_i][1];
+    int k = ball.points[points_i][2];
+    board[i][j][0] = 1;
+  }
 
   Serial.println("Ball's center is at: (" + String(x) + ", " + y + ", " + z + ")");
 //  Serial.println("\t\tPrint ball at: (" + String(i) + ", " + j + ", " + k + ")");
-  
-  showBoard();
 }
 
 
