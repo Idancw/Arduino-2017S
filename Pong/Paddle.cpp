@@ -14,66 +14,42 @@ Paddle::Paddle()
 
 Paddle::Paddle(int pLen, int pWid, int bLen, int bWid)
 {
-  this->pLen = pLen;
-  this->pWid = pWid;
-  this->bLen = bLen;
-  this->bWid = bWid;
+  this->pLen = pLen-1;
+  this->pWid = pWid-1;
+  this->bLen = bLen-1;
+  this->bWid = bWid-1;
   reset();
   
   this->activated = true;
 }
 
-double Paddle::getX() { return (int)this->x; }
-double Paddle::getY() { return (int)this->y; }
-
 void Paddle::setActive(bool activated) { this->activated = activated; }
 bool Paddle::isActive() { return this->activated; }
-
-void Paddle::movingL() { this->xAcc = -1; }
-void Paddle::movingR() { this->xAcc = 1; }
-void Paddle::movingU() { this->yAcc = -1; }
-void Paddle::movingD() { this->yAcc = 1; }
 
 void Paddle::reset()
 {
   this->x = this->bLen/2 - this->pLen/2;
   this->y = this->bWid/2 - this->pWid/2;
-  this->xVel = 0;
-  this->yVel = 0;
-  this->xAcc = 0;
-  this->yAcc = 0;
 }
 
-void Paddle::go()
-{ 
-  if (xAcc > 0)
-    this->xVel += 0.1;
-  else if (xAcc < 0)
-    this->xVel -= 0.1;
-  else
-    this->xVel *= FRICTION;
+//void Paddle::setTarget(int target_x, int target_y)
+//{
+//  x = target_x;
+//  y = target_y;
+//  
+//  // Keep board within the field
+//  this->x = max(target_x,0);
+//  this->x = min(this->x, this->bLen - this->pLen);
+//  this->y = max(target_y,0);
+//  this->y = min(this->y, this->bWid - this->pWid);
+//}
 
-  if (yAcc > 0)
-    this->yVel += 0.1;
-  else if (yAcc < 0)
-    this->yVel -= 0.1;
-  else
-    this->yVel *= FRICTION;
-
-  // Keep velocities within [-1,1];
-  this->xVel = max(this->xVel,-1);
-  this->xVel = min(this->xVel,1);
-  this->yVel = max(this->yVel,-1);
-  this->yVel = min(this->yVel,1);
-
-  // Move board according to velocity.
-  this->x += this->xVel;
-  this->y += this->yVel;
-
+void Paddle::go(int target_x, int target_y)
+{
   // Keep board within the field
-  this->x = max(this->x,0);
+  this->x = max(target_x,0);
   this->x = min(this->x, this->bLen - this->pLen);
-  this->y = max(this->y,0);
+  this->y = max(target_y,0);
   this->y = min(this->y, this->bWid - this->pWid);
 }
 
@@ -90,13 +66,17 @@ void Paddle::shrink(double factor)
   // TODO: Consider recentering the paddle after it shrank.
 }
 
-bool Paddle::isBlocking(int a, int b)
+bool Paddle::isBlocking(double a, double b, double r)
 {
-  // TODO: Round to nearest lightbulb?
-  return ((a > this->x) && (a < this->x + this->pLen) &&
-            (b > this->y) && (b < this->y + this->pWid));
+  // Use +r for anywhere on the ball, and assume ball is square.
+  return ((a+r > this->x) && (a-r < this->x + this->pLen) &&
+            (b+r > this->y) && (b-r < this->y + this->pWid));
 }
 
+String Paddle::getStr()
+{
+  return ("(" + String(x) + "-" + String(x+pLen) + ", " + y + "-" + String(y+pWid) + ")");
+}
 
 
 

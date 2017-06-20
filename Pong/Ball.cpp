@@ -36,9 +36,9 @@ void Ball::reset()
   randomSeed(analogRead(0));
   
   // Give it an initial direction
-//  this->xVel = -0.12;
-//  this->yVel = 0.11;
-//  this->zVel = 0.14;
+//  this->xVel = 0.1;
+//  this->yVel = 0.0;
+//  this->zVel = 0.0;
 
   this->xVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
   this->yVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
@@ -60,6 +60,10 @@ void Ball::go()
   this->x += this->xVel;
   this->y += this->yVel;
   this->z += this->zVel;
+  
+  this->x = min(max(x,r),L-r);
+  this->y = min(max(y,r),w-r);
+  this->z = min(max(z,r),h-r);
 }
 
 void Ball::speedUp(double factor) // factor should be greater than 1
@@ -79,83 +83,75 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   // If hits the floor, reverse
   if (this->z - this->r <= 0)
   {
-    Serial.println("Hit floor!");
+    Serial.println("Hit floor!\t" + getStr());
     this->zVel *= -1;
     bresenham_line_3d(8.0/this->zVel);
   }
   // or ceiling
-  else if (this->z + this->r >= h)
+  else if (this->z + this->r >= h-1)
   {
-    Serial.println("Hit ceiling!");
+    Serial.println("Hit ceiling!\t" + getStr());
   	this->zVel *= -1;
     bresenham_line_3d(-8.0/this->zVel);
   }
 
 
-  // Check for paddle block or gameover
-  if (p1.isActive() && this->x - this->r < 1)
+  // Check for paddle blocks and gameovers
+  if (this->x - this->r <= 0)
   {
-    if (p1.isBlocking(this->y, this->z))
-    {
-      this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    }
-    else
+    this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    if (p1.isActive() && !p1.isBlocking(this->y, this->z, r))
       return 1;
+    Serial.println("Hit p1!\t\t" + getStr());
   }
-  if (p2.isActive() && this->x + this->r > L)
+  if (this->x + this->r >= L-1)
   {
-    if (p2.isBlocking(w-this->y, this->z))
-    {
-      this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    }
-    else
+    this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    if (p2.isActive() && !p2.isBlocking(w-this->y, this->z, r))
       return 2;
+    Serial.println("Hit p2!\t\t" + getStr());
   }
-  if (p3.isActive() && this->y - this->r < 1)
+  if (this->y - this->r <= 0)
   {
-    if (p3.isBlocking(L-this->x, this->z))
-    {
-      this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    }
-    else
+    this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    if (p3.isActive() && !p3.isBlocking(L-this->x, this->z, r))
       return 3;
+    Serial.println("Hit p3!\t\t" + getStr());
   }
-  if (p4.isActive() && this->y + this->r > w)
+  if (this->y + this->r >= w-1)
   {
-    if (p4.isBlocking(this->x, this->z))
-    {
-      this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    }
-    else
+    this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
+    if (p4.isActive() && !p4.isBlocking(this->x, this->z, r))
       return 4;
+    Serial.println("Hit p4!\t\t" + getStr());
   }
 
   
-  // TODO: 0 if no paddle. use 1 when there is and it hits.
-  if (this->x - this->r <= 0)	// Hits p1
-  {
-    Serial.println("Hit p1!");
-  	this->xVel *= -1;
-    bresenham_line_3d((8.0-2*this->x)/this->xVel);
-  }
-  if (this->x + this->r >= L)	// Hits p2
-  {
-    Serial.println("Hit p2!");
-  	this->xVel *= -1;
-    bresenham_line_3d(-8.0/this->xVel);
-  }
-  if (this->y - this->r <= 0)	// Hits p3
-  {
-//    Serial.println("Hit p3!");
-  	this->yVel *= -1;
-    bresenham_line_3d(8.0/this->yVel);
-  }
-  if (this->y + this->r >= w)	// Hits p4
-  {
-//    Serial.println("Hit p4!");
-  	this->yVel *= -1;
-    bresenham_line_3d(-8.0/this->yVel);
-  }
+//  // TODO: 0 if no paddle. use 1 when there is and it hits.
+//  if (this->x - this->r <= 0)	// Hits p1
+//  {
+//    Serial.println("Hit p1!");
+//  	this->xVel *= -1;
+//    bresenham_line_3d((8.0-2*this->x)/this->xVel);
+//  }
+//  if (this->x + this->r >= L)	// Hits p2
+//  {
+//    Serial.println("Hit p2!");
+//  	this->xVel *= -1;
+//    bresenham_line_3d(-8.0/this->xVel);
+//  }
+//  if (this->y - this->r <= 0)	// Hits p3
+//  {
+////    Serial.println("Hit p3!");
+//  	this->yVel *= -1;
+//    bresenham_line_3d(8.0/this->yVel);
+//  }
+//  if (this->y + this->r >= w)	// Hits p4
+//  {
+////    Serial.println("Hit p4!");
+//  	this->yVel *= -1;
+//    bresenham_line_3d(-8.0/this->yVel);
+//  }
 
   // TODO: If it hits a paddle, we'll need to rotate the vector by some amount.
   //rotateBy(CalculateRotationAngel);
