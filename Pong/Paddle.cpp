@@ -7,11 +7,6 @@ double FRICTION = 0.9;
 double MIN_PLEN = 1;
 double MIN_PWID = 1;
 
-Paddle::Paddle()
-{
-  this->activated = false;
-}
-
 Paddle::Paddle(int pLen, int pWid, int bLen, int bWid)
 {
   this->pLen = pLen-1;
@@ -20,10 +15,10 @@ Paddle::Paddle(int pLen, int pWid, int bLen, int bWid)
   this->bWid = bWid-1;
   reset();
   
-  this->activated = true;
+  this->activated = false;
 }
 
-void Paddle::setActive(bool activated) { this->activated = activated; }
+void Paddle::setActive(bool new_activated) { this->activated = new_activated; }
 bool Paddle::isActive() { return this->activated; }
 
 void Paddle::reset()
@@ -31,18 +26,6 @@ void Paddle::reset()
   this->x = this->bLen/2 - this->pLen/2;
   this->y = this->bWid/2 - this->pWid/2;
 }
-
-//void Paddle::setTarget(int target_x, int target_y)
-//{
-//  x = target_x;
-//  y = target_y;
-//  
-//  // Keep board within the field
-//  this->x = max(target_x,0);
-//  this->x = min(this->x, this->bLen - this->pLen);
-//  this->y = max(target_y,0);
-//  this->y = min(this->y, this->bWid - this->pWid);
-//}
 
 void Paddle::go(int target_x, int target_y)
 {

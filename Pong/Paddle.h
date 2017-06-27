@@ -11,9 +11,8 @@ class Paddle
     int pLen, pWid, bLen, bWid;
     bool activated;
    
-    Paddle();
     Paddle(int pLen, int pWid, int bLen, int bWid);
-    void setActive(bool active);
+    void setActive(bool new_activated);
     bool isActive();
     void reset();
 //    void setTarget(int target_x, int target_y);

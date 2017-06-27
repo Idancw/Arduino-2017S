@@ -18,6 +18,7 @@ class Ball
     void setRadius(double r);
     String getStr();
     void reset();
+    void normalizeVel();
     void go();
     void speedUp(double factor);
 //    void checkBounce();
