@@ -3,7 +3,7 @@
 
 
 // == GAME CONSTANTS ==
-double EDGE_PERCENT = 0.2;
+double EDGE_PERCENT = 0.1;
 double MIN_PLEN = 1;
 double MIN_PWID = 1;
 
@@ -16,11 +16,11 @@ Paddle::Paddle(int pLen, int pWid, int bLen, int bWid)
   this->bWid = bWid-1;
   reset();
   
-  this->activated = false;
+  this->activated = 0;
 }
 
-void Paddle::setActive(bool new_activated) { this->activated = new_activated; }
-bool Paddle::isActive() { return this->activated; }
+void Paddle::setActive(bool new_activated) { this->activated = new_activated? 1 : 0; }
+int Paddle::isActive() { return this->activated? 1 : 0; }
 
 void Paddle::reset()
 {
@@ -53,33 +53,44 @@ void Paddle::shrink(double factor)
 bool Paddle::isBlocking(double a, double b, double r)
 {
   // Use +r for anywhere on the ball, and assume ball is square.
-  return activated && ((a+r > this->x) && (a-r < this->x + this->pLen) &&
+  return ((a+r > this->x) && (a-r < this->x + this->pLen) &&
             (b+r > this->y) && (b-r < this->y + this->pWid));
 }
 
-bool isOverlapping(double a, double b, double c, double d)
+bool Paddle::isOverlapping(double a, double b, double c, double d)
 {
+  if  (x <= 2 && x+pLen >= bLen-2)    // Ignore if paddle is near the edge of the board
+    return false;
+  if ((c < b) && (a < d))
+    Serial.println("Hit edge");
   return ((c < b) && (a < d));
+}
+
+bool inRange(double a, double x, double y)
+{
+  if ((a > x) && (a < y))
+    Serial.println("Hit edge");
+  return ((a > x) && (a < y));
 }
 
 bool Paddle::isBlockingEdgeL(double a, double b, double r)
 {
-  return activated && isOverlapping(a-r, a+r, x, x+pLen*EDGE_PERCENT);
+  return activated && inRange(x, a+r-r*EDGE_PERCENT, a+r);
 }
 
 bool Paddle::isBlockingEdgeR(double a, double b, double r)
 {
-  return activated && isOverlapping(a-r, a+r, x+pLen-pLen*EDGE_PERCENT, x+pLen);
+  return activated && inRange(x+pLen, a-r, a-r+r*EDGE_PERCENT);
 }
 
 bool Paddle::isBlockingEdgeD(double a, double b, double r)
 {
-  return activated && isOverlapping(b-r, b+r, y, y+pWid*EDGE_PERCENT);
+  return activated && inRange(y, b+r-r*EDGE_PERCENT, b+r);
 }
 
 bool Paddle::isBlockingEdgeU(double a, double b, double r)
 {
-  return activated && isOverlapping(b-r, b+r, x+pWid-pWid*EDGE_PERCENT, x+pWid);
+  return activated && inRange(y+pLen, b-r, b-r+r*EDGE_PERCENT);
 }
 
 

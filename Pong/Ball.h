@@ -13,14 +13,14 @@ class Ball
    
   public:
     double points[8][3];   // Bresenham's Line algorithm in 3D results
-    double r, x, xVel, y, yVel, z, zVel, f;
+    double r, x, xVel, y, yVel, z, zVel, speedup, f;
     Ball(double r, int L, int w, int h);
     void setRadius(double r);
     String getStr();
     void reset();
     void normalizeVel();
     void go();
-    void speedUp(double factor);
+    void speedUp();
     int checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4);
 };
 

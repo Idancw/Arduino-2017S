@@ -5,14 +5,12 @@
 
 
 // DEBUGGING
-const int DEBUG = 1;    // 1 = flash every other light
+const int DEBUG = 0;    // 1 = flash every other light
 const int USE_OLD_LIGHTING = 1;   // 1 = simple, zig-zagging method
 const int LIGHT_ALL = 0;    // 1 = just light everything up all the time
-const int AI_MODE = 1;
+const int AI_MODE = 0;
 
 // == GAME CONSTANTS ==
-double SPEEDUP = 1.005;
-int players = 0;
 int active_players = 0;
 
 // == Settings ==
@@ -44,6 +42,8 @@ String msg[4] = {"", "", "", ""};
 HardwareSerial* serials[4] = {&Serial, &Serial1, &Serial2, &Serial3};
 //HardwareSerial* serials[4] = {&Serial, &Serial, &Serial, &Serial};
 
+int last_losing_t = 0;
+
 void getInput();
 
 
@@ -56,13 +56,14 @@ void setup()
     pinMode(PIN_TRANSISTORS[i], OUTPUT);
   }
 
-  for (int i=0; i<4; i++){
-    serials[i]->begin(9600); //set baud rate
-//    if (i == 2 || i == 3)
-//      ps[i]->setActive(true);
+  for (int i=0; i<4; i++)
+  {
+    serials[i]->begin(9600);
+    if (ai_mode)
+      ps[i]->setActive(true);
   }
-  gamestatus = -1 + AI_MODE;
-//  gamestatus = 0;
+  gamestatus = -1 + ai_mode;
+  gamestatus = 0;
   ball.reset();
 }
 
@@ -92,7 +93,7 @@ void loop()
     if (t % 100 == 0)
     {
       if (speedUpBall)
-        ball.speedUp(SPEEDUP);
+        ball.speedUp();
 
 //      if (shrinkPaddles)
 //      {
@@ -102,28 +103,28 @@ void loop()
     }
     if (gamestatus > 0)   // Game is over
     {
+      last_losing_t = t;
       serials[gamestatus-1]->print("x");
       Serial.println("Player " + String(gamestatus) + " has lost");
+      Serial.println("Ball: " + ball.getStr());
+      Serial.println("P1's pos: " + p1.getStr());
+      Serial.println("P2's pos: " + p2.getStr());
+      Serial.println("P3's pos: " + p3.getStr());
+      Serial.println("P4's pos: " + p4.getStr());
     }
   }
-  else if (gamestatus > 0)
+  else if (gamestatus != 0)
   {
     // Clear board
     for (int i=0; i<8; i++)
       for (int j=0; j<8; j++)
         for (int k=0; k<8; k++)
           board[i][j][k] = 0;
-    flashLosingEdge(gamestatus);
-//if (t%20 > 10)
+    if (gamestatus > 0)
+      flashLosingEdge(gamestatus);
+    if (gamestatus == -1 || t%20 < 10)
+      printBall();
     printPaddles();
-if (t%20 < 10)
-    printBall();
-    showBoard();
-//    delay(2);
-  }
-  else // Paused
-  {
-    drawBoard();
     showBoard();
   }
   t++;
@@ -142,7 +143,25 @@ void getInput()
         switch (msg[i][0])
         {
           case 'c':   // Move paddle
+            if (gamestatus > 0 && t < last_losing_t + 3000/H)   // if its only been 3 seconds since last loss
+              break;
             parseInput(i, msg[i].substring(1));
+            if (ai_mode)
+            {
+              // Leave AI Mode
+              for (int i=0; i<4; i++)
+                ps[i]->setActive(false);
+              active_players = 0;
+              ai_mode = 0;
+              ball.reset();
+              gamestatus = -1;
+            }
+            if (ps[i]->isActive() == false)
+            {
+              // Join this player
+              active_players++;
+              ps[i]->setActive(true);
+            }
             break;
           case 's':   // Start game
             if (gamestatus == 0)
@@ -160,35 +179,54 @@ void getInput()
             if (!ai_mode && active_players != 0)
               break;
             ball.reset();
-            if (ai_mode == 0)
+            if (ai_mode == 0)   // Enter AI mode
             {
+              for (int i=0; i<4; i++)
+                ps[i]->setActive(true);
               ai_mode = 1;
               gamestatus = 0;
             }
-            else
+            else    // Leave AI mode
             {
+              for (int i=0; i<4; i++)
+                ps[i]->setActive(false);
               ai_mode = 0;
               gamestatus = -1;
             }
             break;
-          case 'j':   // Join game
-            if (gamestatus != -1 && ai_mode == false)
-              break;
-            ai_mode == 0;
-            active_players++;
-            ps[i]->setActive(true);
-            break;
+//          case 'j':   // Join game
+//            if (gamestatus != -1 && ai_mode == false)
+//              break;
+//            ai_mode = 0;
+//            active_players++;
+//            ps[i]->setActive(true);
+//            break;
           case 'q':   // Quit game
-            if (ps[i]->activated != true)
+            if (ps[i]->isActive() == false)
               break;
             ps[i]->setActive(false);
             active_players--;
+            if (active_players == 0)
+            {
+              ball.reset();
+              gamestatus = -1;
+            }
+            break;
+          case 'm':   // Master-reset
+            ball.reset();
+            for (int i=0; i<4; i++)
+              ps[i]->setActive(true);
+            active_players = 0;
+            ai_mode = AI_MODE;
+            gamestatus = 0;
+            t = 0;
+            last_losing_t = 0;
             break;
           default:
             parseInput(i, msg[i]);    // TODO: Remove when app is updated with msgs.
 //            Serial.print("Bad input: " + msg[i]);
         }
-        Serial.print(msg[i]);
+        Serial.print(String(i+1) + ": " + msg[i]);
         msg[i] = "";
       }
     }
@@ -204,8 +242,8 @@ void parseInput(int p, String str)
     Serial.println("Bad Coords: " + str);
     return;
   }
-  int x = str[0] - '0';
-  int y = str[1] - '0';
+  int x = str[0] - '0' - int(pL/2);
+  int y = str[1] - '0' - int(pW/2);
   ps[p]->go(x,y);
 }
 
@@ -235,28 +273,29 @@ void drawBoard()
     return;
   }
 
+
   printPaddles();
   printBall();
 }
 
 void printPaddles()
 {
-  if (p1.activated || ai_mode)
+  if (p1.isActive() || ai_mode)
     for (int i=max(0,p1.x); i<=min(7,p1.x+p1.pLen); i++)
       for (int j=max(0,p1.y); j<=min(7,p1.y+p1.pWid); j++)
           board[0][i][j] = 1;
   
-  if (p2.activated || ai_mode)
+  if (p2.isActive() || ai_mode)
     for (int i=max(0,int(p2.x+0.5)); i<=min(7,int(p2.x+p2.pLen+0.5)); i++)
       for (int j=max(0,int(p2.y+0.5)); j<=min(7,int(p2.y+p2.pWid+0.5)); j++)
           board[7][7-i][j] = 1;
   
-  if (p3.activated || ai_mode)
+  if (p3.isActive() || ai_mode)
     for (int i=max(0,int(p3.x+0.5)); i<=min(7,int(p3.x+p3.pLen+0.5)); i++)
       for (int j=max(0,int(p3.y+0.5)); j<=min(7,int(p3.y+p3.pWid+0.5)); j++)
           board[7-i][0][j] = 1;
   
-  if (p4.activated || ai_mode)
+  if (p4.isActive() || ai_mode)
     for (int i=max(0,int(p4.x+0.5)); i<=min(7,int(p4.x+p4.pLen+0.5)); i++)
       for (int j=max(0,int(p4.y+0.5)); j<=min(7,int(p4.y+p4.pWid+0.5)); j++)
           board[i][7][j] = 1;
@@ -269,9 +308,6 @@ void printBall()
   float y = ball.y;
   float z = ball.z;
 
-//  Serial.println("Ball's dim are:\t" + String(round(x-r)) + "-" + round(x+r) + "\t" +
-//                  round(y-r) + "-" + round(y+r) + "\t" +
-//                  round(z-r) + "-" + round(z+r));
 
 // OLD LIGHTING METHOD
   if (USE_OLD_LIGHTING)
@@ -297,7 +333,8 @@ void printBall()
     int k = ball.points[points_i][2];
     board[i][j][0] = 1;
   }
-    
+
+  // Print game data every so often.
   if (t%1000==0)
   {
     Serial.println("Ball: " + ball.getStr());

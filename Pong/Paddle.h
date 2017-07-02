@@ -9,16 +9,17 @@ class Paddle
   public:
     int x, y;
     int pLen, pWid, bLen, bWid;
-    bool activated;
+    int activated;
    
     Paddle(int pLen, int pWid, int bLen, int bWid);
     void setActive(bool new_activated);
-    bool isActive();
+    int isActive();
     void reset();
 //    void setTarget(int target_x, int target_y);
     void go(int target_x, int target_y);
     void shrink(double factor);
     bool isBlocking(double a, double b, double r);
+    bool isOverlapping(double a, double b, double c, double d);
     bool isBlockingEdgeL(double a, double b, double r);
     bool isBlockingEdgeR(double a, double b, double r);
     bool isBlockingEdgeD(double a, double b, double r);

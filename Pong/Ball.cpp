@@ -4,9 +4,11 @@
 const int DEBUG = 0;
 
 // == GAME CONSTANTS ==
-int STEPS_PER_LED = 20;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
-double MAXF = 4;    // The max factor the ball can be sped up by from the original speed.
+double SPEEDUP = 1.1;   // Multiplier to speed the ball up by.
+double STEPS_PER_LED = 30;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
+double MAXF = 3.5;    // The max factor the ball can be sped up by from the original speed.
 
+double EDGE_MULT = 1;   // The amount an Edge Hit pushes the ball in that direction.
 
 Ball::Ball(double r, int L, int w, int h)
 {
@@ -21,7 +23,7 @@ Ball::Ball(double r, int L, int w, int h)
 String Ball::getStr()
 {
   return ("(" + String(this->x) + "," + this->y + "," + this->z + ")\t" +
-          "(" + this->xVel + "," + this->yVel + "," + this->zVel + ")");
+          "(" + this->xVel*1000 + "," + this->yVel*1000 + "," + this->zVel*1000 + ")");
 }
 
 
@@ -41,22 +43,27 @@ void Ball::reset()
 //  this->yVel = 0.0;
 //  this->zVel = 0.0;
 
-  this->xVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
-  this->yVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
-  this->zVel = ((random(1,101)) * (random(2)*2-1)) / 100.0; // Get a number between (-1,1)/0
+  this->xVel = ((random(25,51)) * (random(2)*2-1)); // Get a number between (-1,1)/0
+  this->yVel = ((random(25,51)) * (random(2)*2-1)); // Get a number between (-1,1)/0
+  this->zVel = ((random(25,max(abs(xVel), abs(yVel)))) * (random(2)*2-1)); // Get a number between (-1,1)/0
+
+  xVel /= 50.0;
+  yVel /= 50.0;
+  zVel /= 50.0;
+
+  this->f = 1;
 
   this->normalizeVel();
-  this->f = 1;
+  speedup = SPEEDUP;
 }
 
 void Ball::normalizeVel()
 {
   // Normalize
   double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2) + pow(this-> zVel,2));
-//  double magnitude = sqrt(pow(this->xVel,2) + pow(this->yVel,2));
-  this->xVel /= magnitude * spl;
-  this->yVel /= magnitude * spl;
-  this->zVel /= magnitude * spl;
+  this->xVel /= magnitude * spl * f;
+  this->yVel /= magnitude * spl * f;
+  this->zVel /= magnitude * spl * f;
 }
 
 void Ball::go()
@@ -70,15 +77,18 @@ void Ball::go()
   this->z = min(max(z,r),h-r);
 }
 
-void Ball::speedUp(double factor) // factor should be greater than 1
+void Ball::speedUp() // factor should be greater than 1
 {
   if (this->f > MAXF)
     return;
-  
-  this->f *= factor; 
-  this->xVel *= factor;
-  this->yVel *= factor;
-  this->zVel *= factor;
+    
+  this->f *= speedup; 
+  this->xVel *= speedup;
+  this->yVel *= speedup;
+  this->zVel *= speedup;
+
+  speedup = 1 + (speedup-1)/speedup;
+  Serial.println("Speedup = " + String(100*speedup));
 }
 
 int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
@@ -98,75 +108,152 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
       Serial.println("Hit ceiling!\t" + getStr());
   	this->zVel *= -1;
   }
+
+
   
   // Check for paddle blocks and gameovers
+
+  // Check if p1 was hit
   if (this->x - this->r <= p1.isActive())
   {
-    this->xVel *= -1;
-    if (p1.isBlockingEdgeL(y,z,r))
-    {
-      xVel /= 2;
-      normalizeVel();
-    }
-    if (p1.isBlockingEdgeU(y,z,r))
-    {
-      zVel /= 2;
-      normalizeVel();
-    }
-    if (!p1.isBlocking(this->y, this->z, r))
+    if (p1.isActive() && !p1.isBlocking(this->y, this->z, r))
       return 1;
+
+    this->xVel *= -1;
+    go();
+//    x = p1.isActive() + r;
+    
+//      
+//    // Check if hit edge of paddle
+//    if (p1.isBlockingEdgeL(y,z,r))
+//    {
+//      yVel = abs(yVel) * EDGE_MULT * -1;
+//      normalizeVel();
+//    }
+//    else if (p1.isBlockingEdgeR(y,z,r))
+//    {
+//      yVel = abs(yVel) * EDGE_MULT * 1;
+//      normalizeVel();
+//    }
+//    if (p1.isBlockingEdgeD(y,z,r))
+//    {
+//      zVel = abs(zVel) * EDGE_MULT * -1;
+//      normalizeVel();
+//    }
+//    else if (p1.isBlockingEdgeU(y,z,r))
+//    {
+//      zVel = abs(zVel) * EDGE_MULT * 1;
+//      normalizeVel();
+//    }
+
     if (DEBUG)
       Serial.println("Hit p1!\t\t" + getStr());
   }
-  if (this->x + this->r >= L-1-p2.isActive())
+
+  // Check if p2 was hit
+  else if (this->x + this->r >= L-1-p2.isActive())
   {
-    this->xVel *= -1;
-    if (p2.isBlockingEdgeL(w-y,z,r))
-      xVel /= 2;
-    normalizeVel();
-    if (p2.isBlockingEdgeU(w-y,z,r))
-    {
-      zVel /= 2;
-      normalizeVel();
-    }
-    if (!p2.isBlocking(w-this->y, this->z, r))
+    if (p2.isActive() && !p2.isBlocking(w-1-this->y, this->z, r))
       return 2;
+
+    this->xVel *= -1;
+    go();
+//    x = L-1-p2.isActive() - r;
+
+//    // Check if hit edge of paddle
+//    if (p2.isBlockingEdgeL(w-1-y,z,r))
+//    {
+//      yVel = abs(yVel) * EDGE_MULT * 1;
+//      normalizeVel();
+//    }
+//    else if (p2.isBlockingEdgeR(w-1-y,z,r))
+//    {
+//      yVel = abs(yVel) * EDGE_MULT * -1;
+//      normalizeVel();
+//    }
+//    if (p2.isBlockingEdgeD(w-1-y,z,r))
+//    {
+//      zVel = abs(zVel) * -1;
+//      normalizeVel();
+//    }
+//    else if (p2.isBlockingEdgeR(w-1-y,z,r))
+//    {
+//      zVel = abs(zVel) * 1;
+//      normalizeVel();
+//    }
+
     if (DEBUG)
       Serial.println("Hit p2!\t\t" + getStr());
   }
+  
+  // Check if p3 was hit
   if (this->y - this->r <= p3.isActive())
   {
-    this->yVel *= -1;
-    if (p3.isBlockingEdgeL(L-x,z,r))
-    {
-      yVel /= 2;
-      normalizeVel();
-    }
-    if (p3.isBlockingEdgeU(L-x,z,r))
-    {
-      zVel /= 2;
-      normalizeVel();
-    }
-    if (!p3.isBlocking(L-this->x, this->z, r))
+    if (p3.isActive() && !p3.isBlocking(L-1-this->x, this->z, r))
       return 3;
+      
+    this->yVel *= -1;
+    go();
+//    y = p3.isActive() + r;
+    
+//    // Check if hit edge of paddle
+//    if (p3.isBlockingEdgeL(L-1-x,z,r))
+//    {
+//      xVel = abs(xVel) * EDGE_MULT * 1;
+//      normalizeVel();
+//    }
+//    else if (p3.isBlockingEdgeR(L-1-x,z,r))
+//    {
+//      xVel = abs(xVel) * EDGE_MULT * -1;
+//      normalizeVel();
+//    }
+//    if (p3.isBlockingEdgeD(L-1-x,z,r))
+//    {
+//      zVel = abs(zVel) * -1;
+//      normalizeVel();
+//    }
+//    else if (p3.isBlockingEdgeR(L-1-x,z,r))
+//    {
+//      zVel = abs(zVel) * 1;
+//      normalizeVel();
+//    }    
+
     if (DEBUG)
       Serial.println("Hit p3!\t\t" + getStr() + p3.isActive());
   }
+
+  // Check if p4 was hit
   if (this->y + this->r >= w-1-p4.isActive())
   {
-    this->yVel *= -1;
-    if (p4.isBlockingEdgeL(x,z,r))
-    {
-      xVel /= 2;
-      normalizeVel();
-    }
-    if (p4.isBlockingEdgeD(x,z,r))
-    {
-      zVel /= 2;
-      normalizeVel();
-    }
-    if (!p4.isBlocking(this->x, this->z, r))
+    if (p4.isActive() && !p4.isBlocking(this->x, this->z, r))
       return 4;
+    
+    this->yVel *= -1;
+    go();
+//    y = w-1-p4.isActive() - r;
+    
+//    // Check if hit edge of paddle
+//    if (p4.isBlockingEdgeL(x,z,r))
+//    {
+//      xVel = abs(xVel) * EDGE_MULT * -1;
+//      normalizeVel();
+//    }
+//    else if (p4.isBlockingEdgeR(x,z,r))
+//    {
+//      xVel = abs(xVel) * EDGE_MULT * 1;
+//      normalizeVel();
+//    }
+//    if (p4.isBlockingEdgeD(x,z,r))
+//    {
+//      zVel = abs(zVel) * 1;
+//      normalizeVel();
+//    }
+//    else if (p4.isBlockingEdgeR(x,z,r))
+//    {
+//      zVel = abs(zVel) * 1;
+//      normalizeVel();
+//    }
+
     if (DEBUG)
       Serial.println("Hit p4!\t\t" + getStr());
   }  
