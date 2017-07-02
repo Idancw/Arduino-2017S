@@ -5,7 +5,7 @@
 
 
 // DEBUGGING
-const int DEBUG = 0;    // 1 = flash every other light
+const int DEBUG = 1;    // 1 = flash every other light
 const int USE_OLD_LIGHTING = 1;   // 1 = simple, zig-zagging method
 const int LIGHT_ALL = 0;    // 1 = just light everything up all the time
 const int AI_MODE = 1;
@@ -13,6 +13,7 @@ const int AI_MODE = 1;
 // == GAME CONSTANTS ==
 double SPEEDUP = 1.005;
 int players = 0;
+int active_players = 0;
 
 // == Settings ==
 bool speedUpBall = true;
@@ -41,6 +42,7 @@ Paddle* ps[4] = {&p1,&p2,&p3,&p4};
 int board[8][8][8];
 String msg[4] = {"", "", "", ""};
 HardwareSerial* serials[4] = {&Serial, &Serial1, &Serial2, &Serial3};
+//HardwareSerial* serials[4] = {&Serial, &Serial, &Serial, &Serial};
 
 void getInput();
 
@@ -76,7 +78,7 @@ void loop()
     
     ball.go();
 
-    if (AI_MODE)
+    if (ai_mode)
     {
       p1.go(ball.y-pL/2, ball.z-pW/2);    // Follow the ball
       p2.go(L-ball.y-pL/2, ball.z-pW/2);    // Follow the ball
@@ -100,17 +102,17 @@ void loop()
     }
     if (gamestatus > 0)   // Game is over
     {
-      serials[gamestatus-1]->print("x\n");
+      serials[gamestatus-1]->print("x");
       Serial.println("Player " + String(gamestatus) + " has lost");
     }
   }
   else if (gamestatus > 0)
   {
-  // Clear board
-  for (int i=0; i<8; i++)
-    for (int j=0; j<8; j++)
-      for (int k=0; k<8; k++)
-        board[i][j][k] = 0;
+    // Clear board
+    for (int i=0; i<8; i++)
+      for (int j=0; j<8; j++)
+        for (int k=0; k<8; k++)
+          board[i][j][k] = 0;
     flashLosingEdge(gamestatus);
 //if (t%20 > 10)
     printPaddles();
@@ -143,6 +145,8 @@ void getInput()
             parseInput(i, msg[i].substring(1));
             break;
           case 's':   // Start game
+            if (gamestatus == 0)
+              break;
             ball.reset();
             gamestatus = 0;
             ai_mode = 0;
@@ -153,14 +157,33 @@ void getInput()
             ai_mode = 0;
             break;
           case 'a':   // AI Mode
+            if (!ai_mode && active_players != 0)
+              break;
             ball.reset();
-            gamestatus = 0;
-            ai_mode = 1;
+            if (ai_mode == 0)
+            {
+              ai_mode = 1;
+              gamestatus = 0;
+            }
+            else
+            {
+              ai_mode = 0;
+              gamestatus = -1;
+            }
             break;
           case 'j':   // Join game
-            ps[0]->setActive(true);
-          case 'l':   // Leave game
-            ps[0]->setActive(false);
+            if (gamestatus != -1 && ai_mode == false)
+              break;
+            ai_mode == 0;
+            active_players++;
+            ps[i]->setActive(true);
+            break;
+          case 'q':   // Quit game
+            if (ps[i]->activated != true)
+              break;
+            ps[i]->setActive(false);
+            active_players--;
+            break;
           default:
             parseInput(i, msg[i]);    // TODO: Remove when app is updated with msgs.
 //            Serial.print("Bad input: " + msg[i]);
@@ -274,7 +297,7 @@ void printBall()
     int k = ball.points[points_i][2];
     board[i][j][0] = 1;
   }
-  
+    
   if (t%1000==0)
   {
     Serial.println("Ball: " + ball.getStr());

@@ -47,7 +47,6 @@ void Ball::reset()
 
   this->normalizeVel();
   this->f = 1;
-//  bresenham_line_3d(magnitude*this->spl*this->x);
 }
 
 void Ball::normalizeVel()
@@ -91,7 +90,6 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
     if (DEBUG)
       Serial.println("Hit floor!\t" + getStr());
     this->zVel *= -1;
-    bresenham_line_3d(8.0/this->zVel);
   }
   // or ceiling
   else if (this->z + this->r >= h-1)
@@ -99,189 +97,82 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
     if (DEBUG)
       Serial.println("Hit ceiling!\t" + getStr());
   	this->zVel *= -1;
-    bresenham_line_3d(-8.0/this->zVel);
   }
-
-  // TODO: Decide where to actually block the ball.
-  // TODO: When paddle is active, dont let ball reach edge.
-  // TODO: When paddle isnt active, let ball reach edge.
   
   // Check for paddle blocks and gameovers
   if (this->x - this->r <= p1.isActive())
   {
-    this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    if (p1.isActive() && !p1.isBlocking(this->y, this->z, r))
+    this->xVel *= -1;
+    if (p1.isBlockingEdgeL(y,z,r))
+    {
+      xVel /= 2;
+      normalizeVel();
+    }
+    if (p1.isBlockingEdgeU(y,z,r))
+    {
+      zVel /= 2;
+      normalizeVel();
+    }
+    if (!p1.isBlocking(this->y, this->z, r))
       return 1;
     if (DEBUG)
       Serial.println("Hit p1!\t\t" + getStr());
   }
   if (this->x + this->r >= L-1-p2.isActive())
   {
-    this->xVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    if (p2.isActive() && !p2.isBlocking(w-this->y, this->z, r))
+    this->xVel *= -1;
+    if (p2.isBlockingEdgeL(w-y,z,r))
+      xVel /= 2;
+    normalizeVel();
+    if (p2.isBlockingEdgeU(w-y,z,r))
+    {
+      zVel /= 2;
+      normalizeVel();
+    }
+    if (!p2.isBlocking(w-this->y, this->z, r))
       return 2;
     if (DEBUG)
       Serial.println("Hit p2!\t\t" + getStr());
   }
   if (this->y - this->r <= p3.isActive())
   {
-    this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    if (p3.isActive() && !p3.isBlocking(L-this->x, this->z, r))
+    this->yVel *= -1;
+    if (p3.isBlockingEdgeL(L-x,z,r))
+    {
+      yVel /= 2;
+      normalizeVel();
+    }
+    if (p3.isBlockingEdgeU(L-x,z,r))
+    {
+      zVel /= 2;
+      normalizeVel();
+    }
+    if (!p3.isBlocking(L-this->x, this->z, r))
       return 3;
     if (DEBUG)
       Serial.println("Hit p3!\t\t" + getStr() + p3.isActive());
   }
   if (this->y + this->r >= w-1-p4.isActive())
   {
-    this->yVel *= -1;    // TODO: Not just 180, but by something based on location on paddle
-    if (p4.isActive() && !p4.isBlocking(this->x, this->z, r))
+    this->yVel *= -1;
+    if (p4.isBlockingEdgeL(x,z,r))
+    {
+      xVel /= 2;
+      normalizeVel();
+    }
+    if (p4.isBlockingEdgeD(x,z,r))
+    {
+      zVel /= 2;
+      normalizeVel();
+    }
+    if (!p4.isBlocking(this->x, this->z, r))
       return 4;
     if (DEBUG)
       Serial.println("Hit p4!\t\t" + getStr());
-  }
-
-  
-//  // TODO: 0 if no paddle. use 1 when there is and it hits.
-//  if (this->x - this->r <= 0)	// Hits p1
-//  {
-//    Serial.println("Hit p1!");
-//  	this->xVel *= -1;
-//    bresenham_line_3d((8.0-2*this->x)/this->xVel);
-//  }
-//  if (this->x + this->r >= L)	// Hits p2
-//  {
-//    Serial.println("Hit p2!");
-//  	this->xVel *= -1;
-//    bresenham_line_3d(-8.0/this->xVel);
-//  }
-//  if (this->y - this->r <= 0)	// Hits p3
-//  {
-////    Serial.println("Hit p3!");
-//  	this->yVel *= -1;
-//    bresenham_line_3d(8.0/this->yVel);
-//  }
-//  if (this->y + this->r >= w)	// Hits p4
-//  {
-////    Serial.println("Hit p4!");
-//  	this->yVel *= -1;
-//    bresenham_line_3d(-8.0/this->yVel);
-//  }
-
-  // TODO: If it hits a paddle, we'll need to rotate the vector by some amount.
-  //rotateBy(CalculateRotationAngel);
-
-  // If redirected, recalculate 
-  if (xv!=this->xVel || yv!=this->yVel || zv!=this->zVel)
-  {
-//    bresenham_line_3d();
-  }
-  
+  }  
   return 0;
 }
 
-void rotateBy(double theta)
-{
-	// Rotate the ball's direction by theta degrees counterclockwise.
-  //  - https://www.youtube.com/watch?v=DOMg0lXWatM
-  //  - https://bitbucket.org/MegaJiXiang/arduinoprojects/src/9bdaad4ad04252ad85d862f9f0945c1f82a46da8/Libraries/Math/
 
-}
 
-void Ball::bresenham_line_3d(double mult)
-{
-  return;
-    double x0=this->x, y0=this->y, z0=this->z;
-    double x1=x0+this->xVel*mult, y1=y0+this->yVel*mult, z1=z0+this->zVel*mult;
-    double dx = abs(x1 - x0);
-    double dy = abs(y1 - y0);
-    double dz = abs(z1 - z0);
-    int x=x0, y=y0, z=z0;
-    int sx = (x0 > x1)? -1 : 1;
-    int sy = (y0 > y1)? -1 : 1;
-    int sz = (z0 > z1)? -1 : 1;
-
-    if (dz > dx && dz > dy)   // Strongest going up/down (z)
-    {
-//      Serial.println("strongest going up/down " + String(dx) + " " + dy + " " + dz);
-        double err_x = dz / 2.0;
-        double err_y = dz / 2.0;
-        while (abs(z - z1) < 0.5)
-        {
-            this->points[int(z)][0] = x;
-            this->points[int(z)][1] = y;
-            this->points[int(z)][2] = z;
-            err_x -= dx;
-            if (err_x < 0)
-            {
-                x += sx;
-                err_x += dz;
-            }
-            err_y -= dy;
-            if (err_y < 0)
-            {
-                y += sy;
-                err_y += dz;
-            }
-            z += sz;
-        }
-    }
-    else if (dx > dy)   // Strongest going left/right (x)
-    {
-//      Serial.println("strongest going left/right");
-        int err_z = dx / 2.0;
-        int err_y = dx / 2.0;
-        while (abs(x - x1) < 0.5)
-        {
-            this->points[int(x)][0] = x;
-            this->points[int(x)][1] = y;
-            this->points[int(x)][2] = z;
-            err_y -= dy;
-            if (err_y < 0)
-            {
-                y += sy;
-                err_y += dx;
-            }
-            err_z -= dz;
-            if (err_z < 0)
-            {
-                z += sz;
-                err_z += dx;
-            }
-            x += sx;
-        }
-    }
-    else    // Strongest going back/front (y)
-    {
-      int err_x = dy / 2.0;
-      int err_z = dy / 2.0;
-      while (abs(y - y1) < 0.5)
-      {
-          this->points[int(y)][0] = x;
-          this->points[int(y)][1] = y;
-          this->points[int(y)][2] = z;
-          err_x -= dx;
-          if (err_x < 0)
-          {
-              x += sx;
-              err_x += dy;
-          }
-          err_z -= dz;
-          if (err_z < 0)
-          {
-              z += sz;
-              err_z +=  dy;
-          }
-          y += sy;
-      }
-//      Serial.println("Strongest going back/front\t\t" + String(x0) + ", " + y0 + ", " + z0 +
-//                     "\t\t" + String(x1) + ", " + y1 + ", " + z1);
-//      delay(100);
-//      Serial.println("All done");
-    }
-    this->points[7][0] = x1;
-    this->points[7][1] = y1;
-    this->points[7][2] = z1;
-    
-    return;
-}
 

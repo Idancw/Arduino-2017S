@@ -19,6 +19,10 @@ class Paddle
     void go(int target_x, int target_y);
     void shrink(double factor);
     bool isBlocking(double a, double b, double r);
+    bool isBlockingEdgeL(double a, double b, double r);
+    bool isBlockingEdgeR(double a, double b, double r);
+    bool isBlockingEdgeD(double a, double b, double r);
+    bool isBlockingEdgeU(double a, double b, double r);
     String getStr();
     // TODO: Maybe some draw function that cares about the radius of the ball and returns the range of coords
 };

@@ -3,9 +3,10 @@
 
 
 // == GAME CONSTANTS ==
-double FRICTION = 0.9;
+double EDGE_PERCENT = 0.2;
 double MIN_PLEN = 1;
 double MIN_PWID = 1;
+
 
 Paddle::Paddle(int pLen, int pWid, int bLen, int bWid)
 {
@@ -52,9 +53,36 @@ void Paddle::shrink(double factor)
 bool Paddle::isBlocking(double a, double b, double r)
 {
   // Use +r for anywhere on the ball, and assume ball is square.
-  return ((a+r > this->x) && (a-r < this->x + this->pLen) &&
+  return activated && ((a+r > this->x) && (a-r < this->x + this->pLen) &&
             (b+r > this->y) && (b-r < this->y + this->pWid));
 }
+
+bool isOverlapping(double a, double b, double c, double d)
+{
+  return ((c < b) && (a < d));
+}
+
+bool Paddle::isBlockingEdgeL(double a, double b, double r)
+{
+  return activated && isOverlapping(a-r, a+r, x, x+pLen*EDGE_PERCENT);
+}
+
+bool Paddle::isBlockingEdgeR(double a, double b, double r)
+{
+  return activated && isOverlapping(a-r, a+r, x+pLen-pLen*EDGE_PERCENT, x+pLen);
+}
+
+bool Paddle::isBlockingEdgeD(double a, double b, double r)
+{
+  return activated && isOverlapping(b-r, b+r, y, y+pWid*EDGE_PERCENT);
+}
+
+bool Paddle::isBlockingEdgeU(double a, double b, double r)
+{
+  return activated && isOverlapping(b-r, b+r, x+pWid-pWid*EDGE_PERCENT, x+pWid);
+}
+
+
 
 String Paddle::getStr()
 {
