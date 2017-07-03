@@ -1,12 +1,12 @@
 #include "Arduino.h"
 #include "Ball.h"
 
-const int DEBUG = 0;
+const int PRINT_SERIAL = 0;
 
 // == GAME CONSTANTS ==
-double SPEEDUP = 1.1;   // Multiplier to speed the ball up by.
-double STEPS_PER_LED = 30;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
-double MAXF = 3.5;    // The max factor the ball can be sped up by from the original speed.
+double SPEEDUP = 1.10;   // Multiplier to speed the ball up by.
+double STEPS_PER_LED = 40;    // The amount of times Ball.go() must be called for the ball to go from one edge of the pixel to the other.
+double MAXF = 4.5;    // The max factor the ball can be sped up by from the original speed.
 
 double EDGE_MULT = 1;   // The amount an Edge Hit pushes the ball in that direction.
 
@@ -88,7 +88,7 @@ void Ball::speedUp() // factor should be greater than 1
   this->zVel *= speedup;
 
   speedup = 1 + (speedup-1)/speedup;
-  Serial.println("Speedup = " + String(100*speedup));
+//  Serial.println("Speedup = " + String(100*speedup) + "\t\tf = " + (f*100));
 }
 
 int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
@@ -97,14 +97,14 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
   // If hits the floor, reverse
   if (this->z - this->r <= 0)
   {
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit floor!\t" + getStr());
     this->zVel *= -1;
   }
   // or ceiling
   else if (this->z + this->r >= h-1)
   {
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit ceiling!\t" + getStr());
   	this->zVel *= -1;
   }
@@ -146,7 +146,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
 //      normalizeVel();
 //    }
 
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit p1!\t\t" + getStr());
   }
 
@@ -182,7 +182,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
 //      normalizeVel();
 //    }
 
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit p2!\t\t" + getStr());
   }
   
@@ -218,7 +218,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
 //      normalizeVel();
 //    }    
 
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit p3!\t\t" + getStr() + p3.isActive());
   }
 
@@ -254,7 +254,7 @@ int Ball::checkBounce(Paddle &p1, Paddle &p2, Paddle &p3, Paddle &p4)
 //      normalizeVel();
 //    }
 
-    if (DEBUG)
+    if (PRINT_SERIAL)
       Serial.println("Hit p4!\t\t" + getStr());
   }  
   return 0;
