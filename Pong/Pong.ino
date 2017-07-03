@@ -5,7 +5,7 @@
 
 
 // DEBUGGING
-const int PRINT_SERIAL = 1;
+const int PRINT_SERIAL = 0;
 const int DEBUG = 0;    // 1 = flash every other light
 const int LIGHT_ALL = 0;    // 1 = just light everything up all the time
 const int AI_MODE = 1;
