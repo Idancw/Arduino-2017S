@@ -1,0 +1,40 @@
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.6
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "3D Led Pong", "3D Led Pong\3D Led Pong.csproj", "{1C01C880-B047-42B3-BBEF-A66E91785DDE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|ARM = Release|ARM
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|ARM.ActiveCfg = Debug|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|ARM.Build.0 = Debug|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|ARM.Deploy.0 = Debug|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x64.ActiveCfg = Debug|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x64.Build.0 = Debug|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x64.Deploy.0 = Debug|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x86.ActiveCfg = Debug|x86
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x86.Build.0 = Debug|x86
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Debug|x86.Deploy.0 = Debug|x86
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|ARM.ActiveCfg = Release|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|ARM.Build.0 = Release|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|ARM.Deploy.0 = Release|ARM
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x64.ActiveCfg = Release|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x64.Build.0 = Release|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x64.Deploy.0 = Release|x64
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x86.ActiveCfg = Release|x86
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x86.Build.0 = Release|x86
+		{1C01C880-B047-42B3-BBEF-A66E91785DDE}.Release|x86.Deploy.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,33 @@
+﻿<Page
+    x:Class="natan_test_07_06.ServerMenuPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:natan_test_07_06"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Width="320" Height="540">
+
+    <Grid Width="320" Height="540" Padding="4,0,0,0" Margin="0">
+        <Grid.Background>
+            <ImageBrush Stretch="Fill" ImageSource="mobile app 2.png"/>
+        </Grid.Background>
+        <Button x:ConnectionId='1' x:Name="ButtonCreate" VerticalAlignment="Top" Margin="0,290,0,0"                            Height="45" Width="229" HorizontalAlignment="Center" Foreground="#FFFFF2F2" Background="#D8598EDA" FontWeight="Bold" BorderBrush="#FF7A0606">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" BorderBrush="#FFFB5C5C">
+                <SymbolIcon Symbol="Add"/>
+                <TextBlock Margin="5">
+                    <Run Text="Create New Game" FontSize="20"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        <Button x:ConnectionId='2' x:Name="ButtonJoin" VerticalAlignment="Top" Margin="0,350,0,0"                          Height="45" Width="229" HorizontalAlignment="Center" Foreground="#FFFFF2F2" Background="#D8598EDA" FontWeight="Bold" BorderBrush="#FF7A0606">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="5">
+                    <Run Text="Join Game" FontSize="20"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+        
+
+    </Grid>
+</Page>
+

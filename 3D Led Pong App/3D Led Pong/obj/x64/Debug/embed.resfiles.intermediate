@@ -1,0 +1,12 @@
+App.xbf
+Common\QuickStartTask.xbf
+Control\ThumbStick.xbf
+ControllerPage.xbf
+GameFinishedPage.xbf
+LostPage.xbf
+MainPage.xbf
+ScoreBoardPage.xbf
+ServerCreateGamePage .xbf
+ServerJoinGamePage .xbf
+ServerMenuPage.xbf
+WinPage.xbf

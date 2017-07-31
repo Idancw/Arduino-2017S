@@ -1,0 +1,28 @@
+﻿<Page
+    x:Class="natan_test_07_06.LostPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:natan_test_07_06"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d" Height="638">
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="Black" Offset="1"/>
+                <GradientStop Color="White"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <Image Source="128_6.png" Margin="10,-56,10,190"/>
+        <Button x:ConnectionId='1' x:Name="ButtonTest" VerticalAlignment="Top" Margin="85,394,85,0"                          Height="60" Width="176" HorizontalAlignment="Center" Background="#999ABCD8" Foreground="#FF683333" BorderBrush="#FF282E9E">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <TextBlock Margin="1" VerticalAlignment="Top">
+                    <Run Text="Back to Game" FontWeight="Bold" FontSize="20"/>
+                </TextBlock>
+            </StackPanel>
+        </Button>
+
+    </Grid>
+</Page>
+
